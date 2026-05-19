@@ -62,11 +62,17 @@ uv run python 01_Python_project_refactored/release/03_vehicle_control/simulator_
 ```
 
 ## 합격 기준 (`pytest` 통과)
-1. **speed PID law** — 알려진 (v_des, v_ego, prev_err) 에서 한 step ax 일치
-2. **timegap law** — 알려진 (gap, v_ego, v_target, τ, gains) 에서 한 step ax 일치
-3. **LongitudinalDecision latch** — target.Y 가 한 번 boundary 넘으면 이후 mode 가 항상 timegap
-4. **LateralController adapter 호환** — PP / Stanley / LatPIDFF 셋 다 동일 인터페이스로 호출 가능
-5. **closed-loop 45s sim** — invasion 감지 후 timegap latch, sim 마지막 5s 의 ego 가 lane2 center 추종 (평균 |Y_ego - lane2| < 0.4), ego.vx ∈ (7.0, 9.5) (감속 발생 + 과도 감속 X), 충돌 X (min gap > 2m)
+sub-controller 단위 수식 검증은 06/07/08 에 위임 — 09 는 **decision latch + 통합 closed-loop** 만 본다.
+
+1. **LongitudinalDecision latch** — target 침범 감지 후 mode 가 `timegap` 으로 latch (이후 target 이 원 lane 으로 돌아가도 유지)
+2. **통합 폐루프 45 초 시뮬**
+   - 침범 후 `timegap` mode 진입 (decision.invaded 참)
+   - sim 마지막 5 초 ego 가 lane2 추종 (평균 `|Y_ego - lane2| < 0.4 m`)
+   - 감속 발생 (vx tail mean `< 9.5`, v_des 10 보다 작아짐)
+   - 과감속 X (vx tail mean `> 7.0`, target vx 8 까지 과감속 X)
+   - 충돌 X (`min gap > 2 m`)
+
+> sub-controller adapter (PP/Stanley/PIDFF) 가 작동 안 하면 통합 폐루프 spec 미달로 자동 차단.
 
 ## 힌트
 - **speed PID** (01 챕터와 동일): `err = v_des - v_ego`; 첫 호출 D=0; `ax = kp_v·err + kd_v·d_err`.

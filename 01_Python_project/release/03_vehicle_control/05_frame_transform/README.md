@@ -40,9 +40,11 @@ uv run python 01_Python_project_refactored/release/03_vehicle_control/05_frame_t
 > 본 모듈은 시간축 없는 정적 데모라 `record_gen.py` + Rerun 시뮬레이터 흐름을 쓰지 않는다 (3D 차량 박스 한 개 띄우는 게 본질을 흐림). 다른 03_vehicle_control 모듈과 다른 점.
 
 ## 합격 기준 (`pytest` 통과)
-- **Global2Local**: identity / translation-only / 90° 회전 케이스
-- **PolynomialFitting**: 4점 정확 cubic 복원 + 5점 overdetermined parabola 복원
-- **PolynomialValue**: 상수 / 1차 함수 평가
+이 모듈은 06/07/08/09 의 pipeline 빌딩 블록 (순수 수학 유틸리티) — **수치 정확성** 으로 검증. 구현 형태 (numpy / scipy / pure python) 는 제약 X.
+
+1. **회전 + 평행이동 결합** — yaw=π/2 + ego at (10, 5) 환경에서 global (11, 5) 점 → local (0, -1) (tol `1e-12`)
+2. **다항식 fit** — 알려진 cubic 의 sample 들로 fit → 계수 정확 (tol `1e-9`)
+3. **다항식 평가** — `coeff = [0, 0, 2, -1]` (degree 3) → `y = 2x - 1` 모든 x 에서 일치
 
 ## 힌트
 - 회전 행렬: `θ = -yaw_ego` (음수!), `R(θ) = [[cos, -sin], [sin, cos]]`

@@ -41,10 +41,9 @@ uv run python 01_Python_project_refactored/release/03_vehicle_control/simulator_
 > **시뮬레이터는 챕터 전체용** — 인자 없이 실행하면 `03_vehicle_control/` 하위 모든 시나리오를 한 viewer 에 별도 recording 으로 멀티 로드, viewer 좌측 Recordings 패널에서 클릭 전환. `--camera follow|fixed` 로 초기 카메라 (기본 `follow`).
 
 ## 합격 기준 (`pytest` 통과)
-1. **기하 식 일치** — 알려진 (d_lh, y_lh) 에서 정확히 `atan( 2·L·y_lh / (d_lh² + y_lh² + ε) )`
-2. **stateless** — 같은 입력 두 번 → 같은 출력
-3. **직진 (모든 coeff 0) → 0 steering**
-4. **곡선 추종** — `L=4, lookahead_time=1.0`, vx=3, cos path, sim 30s, 평균 |lateral error| < 0.5
+학생이 푼 알고리즘 형태 (정통 pure-pursuit / 다른 lookahead 처리) 는 제약 X — **behavioral spec** 만 본다.
+
+1. **곡선 경로 추적 오차** — `L=4, lookahead_time=1.0`, vx=3, 직선(40m)+sin path, Y0=2 (도로 밖 시작), 30 초 pipeline, tail 평균 `|lateral err| < 0.4 m`, peak `< 2.2 m`
 
 ## 힌트
 - 식: `δ = atan( 2·L·y_lh / (d_lh² + y_lh² + ε) )`

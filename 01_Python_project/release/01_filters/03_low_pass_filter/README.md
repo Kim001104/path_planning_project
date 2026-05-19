@@ -36,12 +36,12 @@ uv run python 01_Python_project_refactored/release/01_filters/03_low_pass_filter
 → sin(t) + N(0, 0.5) 노이즈를 α=0.9 로 평활한 결과 plotly 그래프.
 
 ## 합격 기준 (`pytest` 통과)
-1. **첫 샘플 패스스루** — 첫 `step(x)` 호출이 `x` 그대로 반환
-2. **α=0 패스스루** — `step(x) == x` 가 모든 호출에서 성립
-3. **α=1 첫 값 홀드** — 첫 step 후 모든 step 이 동일한 값 반환
-4. **상수 입력 안정성**
-5. **노이즈 분산 감소** — α=0.9, N(5, 1) 노이즈 1만 샘플의 워밍업 이후 출력 표준편차 < 0.5
-6. **정상상태 평균 unbiased** — 같은 시나리오의 출력 평균이 |mean - 5| < 0.1. 분산 감소만 통과시키면 `return 0.0` 같은 망가진 구현도 합격하므로 **bias 도 함께 검증**.
+학생이 푼 알고리즘 형태 (EMA / cumulative / moving avg 등) 는 제약 X — **behavioral spec** 만 본다.
+
+1. **상수 입력 안정성** — `step(2.0)` 200 회 반복 시 출력 `2.0` 유지
+2. **노이즈 추적 RMS** — `alpha=0.9`, 상수 truth=5 + N(0, 1) 노이즈 1만 표본, warm-up 이후 RMS 오차 `< 0.3`
+
+> RMS = √(bias² + variance). `return 0` (bias 임계값 초과) / `return x` (variance 임계값 초과) 모두 차단.
 
 ## 힌트
 - 일반 식: `y = α · y_prev + (1 - α) · x`

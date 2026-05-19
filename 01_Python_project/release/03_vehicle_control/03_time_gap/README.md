@@ -39,10 +39,12 @@ uv run python 01_Python_project_refactored/release/03_vehicle_control/simulator_
 ```
 
 ## 합격 기준 (`pytest` 통과)
-1. **time-gap 식 일치** — `(target_x - ego_x) - ego_vx·time_gap`
-2. **첫 호출 D=0**
-3. **정속 target 수렴** — sim 50s 후 시간 gap 1.0±0.2 초
-4. **기동 target 추종** — 가/감속 하는 target 에서 충돌 없음 + 정속 복귀 후 1.0±0.5 초 재수렴
+학생이 푼 알고리즘 형태 (정통 PID / 다른 gap 정의) 는 제약 X — **behavioral spec** 만 본다.
+
+1. **정속 target 시간 간격 정확도** — 50 초 시뮬, tail 평균 `|time_gap - 1.0| < 0.1 s`, peak `< 0.3 s`
+2. **기동 target 안전 + 재수렴** — 가/감속 시나리오 80 초, 충돌 없음 (`min gap > 0`) + 정속 복귀 후 `|time_gap - 1.0| < 0.5 s` 재수렴
+
+> 같은 게인이 두 시나리오 모두 통과해야 — 한쪽만 작동하는 튜닝은 합격 X.
 
 ## 힌트
 - `target_space = ego_vx · time_gap` 을 **매 step 호출 시 다시 계산** (생성자에서 한 번만 X)

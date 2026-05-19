@@ -39,9 +39,10 @@ uv run python 01_Python_project_refactored/release/02_pid/04_pid_tuning/demo.py
 → 위치 응답 + 제어 입력을 plotly 2 패널로 표시. 게인 조정 → 데모 → 모양 보고 다시 조정.
 
 ## 합격 기준 (`pytest` 통과)
-1. **게인 양수** — `KP > 0`, `KD > 0`, `KI > 0` 모두 만족 (외란 보상 위해 I 항 필요)
-2. **폐루프 수렴** — 위 plant 60 초 시뮬 후 위치 절대값 < 0.1
-3. **제어 폭주 금지** — 시뮬 동안 max(|u|) < 50 (지나치게 큰 게인 차단)
+학생이 채운 `KP/KD/KI` 값으로 평가 — 게인 부호/크기 제약 X, **behavioral spec** 만 본다.
+
+1. **폐루프 추적 오차** — 외란 0.3 + actuation_gain 0.5 plant, 60 초 시뮬, tail 평균 `|error| < 0.1`, peak `|error| < 1.5`
+2. **제어 입력 boundedness** — 시뮬 동안 `max|u| < 50` (발산형 튜닝/극단 게인 차단)
 
 ## 힌트
 - 모두 작은 양수에서 시작 (예: `KP=KD=KI=0.5`) → demo 실행 → 응답 보고 키우기.

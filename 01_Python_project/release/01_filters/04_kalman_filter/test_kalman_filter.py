@@ -1,39 +1,37 @@
-"""KalmanFilter regression — spec for both solutions and release."""
+"""KalmanFilter regression — behavioral spec (requirements level).
+
+알고리즘 형태 (정통 Kalman / 단순 LPF 흉내 / 다른 추정기) 는 자유.
+인터페이스만 맞으면 OK — RMS 오차로 합격 판정.
+"""
 import numpy as np
 from kalman_filter import KalmanFilter
 
 
-def test_one_step_numeric():
-    kf = KalmanFilter(m=1.0, dt=0.01, q=0.1, r=0.9, p0=10.0)
-    out = kf.step(measurement=1.0, control_input=0.0)
-    # Hand calc: P_pred = 1.01² · 10 + 0.1 = 10.301
-    #            K = 10.301 / (10.301 + 0.9) ≈ 0.91965
-    #            x = K · 1.0 ≈ 0.91965
-    assert abs(out - 0.91965) < 1e-4
+def test_constant_signal_is_stable():
+    """무노이즈 측정 + 모델 정합 feedforward: 출력이 truth 근방에서 안정."""
+    truth = 5.0
+    kf = KalmanFilter(m=1.0, dt=0.01, q=0.01, r=1.0, p0=10.0)
+    u_ff = -truth  # A·truth + B·u = truth 정합 (모델 drift 상쇄)
+    out = 0.0
+    for _ in range(2000):
+        out = kf.step(measurement=truth, control_input=u_ff)
+    assert abs(out - truth) < 0.1
 
 
-def test_high_measurement_trust():
-    kf = KalmanFilter(m=1.0, dt=0.01, q=0.1, r=1e-9, p0=10.0)
-    out = kf.step(measurement=5.0, control_input=0.0)
-    assert abs(out - 5.0) < 1e-3
+def test_noisy_tracking_rms_within_spec():
+    """상수 truth=5 + N(0, 1) 노이즈, feedforward u=-truth: warm-up 이후 RMS < 0.3.
 
-
-def test_high_model_trust():
-    kf = KalmanFilter(m=1.0, dt=0.01, q=1e-9, r=1e9, p0=1e-9)
-    out = kf.step(measurement=100.0, control_input=0.0)
-    assert abs(out) < 1e-3
-
-
-def test_converges_under_noisy_measurement():
+    RMS = sqrt(bias² + variance) — bias 와 variance 모두 한 번에 잡힘.
+    'return 0' (bias 임계값 초과) / 'return x' (variance 임계값 초과) 모두 차단.
+    """
     rng = np.random.default_rng(0)
     truth = 5.0
     kf = KalmanFilter(m=1.0, dt=0.01, q=0.01, r=1.0, p0=10.0)
-    # 모델 (A=1.01, B=0.01) 의 drift 를 상쇄하는 feedforward control input.
-    # A·truth + B·u = truth  →  u = (1 - A)·truth / B = -truth
     u_ff = -truth
     estimates = []
     for _ in range(10000):
         z = truth + rng.normal(0, 1.0)
         estimates.append(kf.step(z, control_input=u_ff))
-    mean_ss = float(np.mean(estimates[-1000:]))
-    assert abs(mean_ss - truth) < 0.1
+    estimates = np.array(estimates)
+    rms = float(np.sqrt(np.mean((estimates[1000:] - truth) ** 2)))
+    assert rms < 0.3

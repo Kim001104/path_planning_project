@@ -48,10 +48,12 @@ uv run python 01_Python_project_refactored/release/02_pid/06_pid_with_kf/demo.py
 → true / 노이즈 측정 / KF 추정 + 제어 입력 u 의 2 패널 plotly.
 
 ## 합격 기준 (`pytest` 통과)
-1. **반환 4-튜플** — `(y_true, y_measure, y_estimate, u)` 모두 float (`state[0]` 의 numpy → float 변환 필요)
-2. **폐루프 수렴** — 시뮬 60 초 후반 30 초의 평균 |y_true| < 0.15
-3. **KF 추정 정확도** — 추정 위치의 평균 절대 오차 < 0.10 (raw 노이즈 ≈ 0.20 의 절반 이하)
-4. **`prev_u` 전달 검증** — `closed_loop_step` 이 받은 `prev_u` 값을 estimator.step 의 두 번째 인자로 정확히 넘겨야 함 (호출 인자 기록으로 직접 검증)
+학생이 짠 `closed_loop_step` 내부 순서·`prev_u` 전파 형태는 제약 X — 인터페이스 + behavioral spec 만 본다.
+
+1. **KF + PID 폐루프 추적 오차** — 외란 0.1, 노이즈 std 0.25, seed 42, 60 초 시뮬, tail 평균 `|y_true| < 0.15`, peak < 1.5
+2. **KF 추정 정확도** — 추정 위치의 tail 평균 절대 오차 `< 0.10` (raw 노이즈 ≈ 0.2 의 절반 이하)
+
+> `prev_u` 가 KF 에 잘못 전달되거나 누락되면 추정/추적 모두 임계값 초과로 차단.
 
 ## 힌트
 - KF 의 `step` 시그니처: `step(measurement, control_input)` — control 입력 누락 시 `TypeError`.

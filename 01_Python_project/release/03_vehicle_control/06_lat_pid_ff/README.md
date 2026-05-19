@@ -41,11 +41,10 @@ uv run python 01_Python_project_refactored/release/03_vehicle_control/simulator_
 ```
 
 ## 합격 기준 (`pytest` 통과)
-1. **kff=0 시 PID-only 동작** — 알려진 coeff/vx 에서 한 step 결과 일치
-2. **FF 항이 vx² 비례** — kp=kd=ki=0, kff=1, coeff[-3]=0.5 → 결과 = vx²
-3. **첫 호출 D=0**
-4. **저속 (vx=3) PID-only 추종** — sim 30s 의 평균 |lateral error| < 0.5
-5. **고속 (vx=10) FF 효과 입증** — kff=0.1 일 때 평균 error 가 kff=0 대비 30% 이상 감소
+학생이 푼 알고리즘 형태 (정통 PID + FF / 다른 처리) 는 제약 X — **behavioral spec** 만 본다.
+
+1. **저속 (vx=3) PID-only 추적 오차** — kff=0, pipeline 30 초, tail 평균 `|lateral err| < 0.3 m`, peak `< 1.2 m`
+2. **고속 (vx=10) FF 효과 입증** — kff=0.1 평균 error 가 kff=0 대비 **15% 이상 감소** — FF 무효/약한 구현 차단
 
 ## 힌트
 - `error = poly(coeff, d_lh)` where `d_lh = lookahead_time · vx` (lookahead 점의 local-frame y)

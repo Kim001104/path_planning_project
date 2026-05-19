@@ -1,4 +1,8 @@
-"""KalmanFilter2D regression — spec for both solutions and release."""
+"""KalmanFilter2D regression — behavioral spec (requirements level).
+
+알고리즘 형태 (정통 Kalman / 단순 추정기 / 다른 방식) 는 자유.
+인터페이스만 맞으면 OK — 위치·속도 RMS 오차로 합격 판정.
+"""
 import numpy as np
 from kalman_filter_2d import KalmanFilter2D
 
@@ -10,54 +14,33 @@ def _cv_matrices(dt=0.1):
     return A, B, C
 
 
-def test_one_step_numeric_constant_velocity():
-    A, B, C = _cv_matrices(dt=0.1)
-    Q = np.diag([0.01, 0.05])
-    R = 5.0
-    kf = KalmanFilter2D(A=A, B=B, C=C, Q=Q, R=R,
-                        x0=np.zeros(2), P0=10.0 * np.eye(2))
-    out = kf.step(measurement=1.0, control_input=0.0)
-    # Hand calc: P_pred = [[10.11, 1], [1, 10.05]], S = 15.11
-    #            K = [10.11, 1] / 15.11 ≈ [0.6691, 0.0662]
-    #            state = K · 1.0
-    assert abs(out[0] - 0.6691) < 1e-3
-    assert abs(out[1] - 0.0662) < 1e-3
+def test_constant_velocity_tracking_rms_within_spec():
+    """등속 truth (v=2.0) + 위치만 N(0, 0.5) 노이즈, 300 step: warm-up 이후
+    위치 RMS < 0.5, 속도 RMS < 0.3.
 
-
-def test_high_measurement_trust():
-    A, B, C = _cv_matrices()
-    Q = np.diag([0.01, 0.05])
-    kf = KalmanFilter2D(A=A, B=B, C=C, Q=Q, R=1e-9)
-    out = kf.step(measurement=5.0, control_input=0.0)
-    assert abs(out[0] - 5.0) < 1e-3
-
-
-def test_high_model_trust():
-    A, B, C = _cv_matrices()
-    Q = np.diag([1e-9, 1e-9])
-    P0 = 1e-9 * np.eye(2)
-    kf = KalmanFilter2D(A=A, B=B, C=C, Q=Q, R=1e9, P0=P0)
-    out = kf.step(measurement=100.0, control_input=0.0)
-    assert abs(out[0]) < 1e-3
-    assert abs(out[1]) < 1e-3
-
-
-def test_constant_velocity_tracking():
+    RMS = sqrt(bias² + variance) — bias 와 variance 모두 한 번에 잡힘.
+    상수 / 패스스루 류 trivial 구현은 임계값 초과로 차단.
+    """
     rng = np.random.default_rng(0)
     dt = 0.1
-    n_steps = 200
+    n = 300
     v_truth = 2.0
     A, B, C = _cv_matrices(dt=dt)
     Q = np.diag([0.01, 0.05])
     R = 0.5
     kf = KalmanFilter2D(A=A, B=B, C=C, Q=Q, R=R)
 
-    out = np.zeros(2)
-    for k in range(n_steps):
-        truth_pos = v_truth * k * dt
-        z = truth_pos + rng.normal(0, 0.5)
-        out = kf.step(measurement=z, control_input=0.0)
+    truth_pos = v_truth * np.arange(n) * dt
+    pos_est = np.zeros(n)
+    vel_est = np.zeros(n)
+    for k in range(n):
+        z = truth_pos[k] + rng.normal(0, 0.5)
+        state = kf.step(measurement=z, control_input=0.0)
+        pos_est[k] = state[0]
+        vel_est[k] = state[1]
 
-    truth_pos_final = v_truth * (n_steps - 1) * dt
-    assert abs(out[0] - truth_pos_final) < 0.5
-    assert abs(out[1] - v_truth) < 0.3
+    warm = 100
+    pos_rms = float(np.sqrt(np.mean((pos_est[warm:] - truth_pos[warm:]) ** 2)))
+    vel_rms = float(np.sqrt(np.mean((vel_est[warm:] - v_truth) ** 2)))
+    assert pos_rms < 0.5
+    assert vel_rms < 0.3

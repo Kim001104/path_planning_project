@@ -70,10 +70,11 @@ uv run python 01_Python_project_refactored/release/01_filters/05_kalman_filter_2
 → m=10, k=100, b=2 자유 진동 시스템, 위치만 노이즈 측정.
 
 ## 합격 기준 (`pytest` 통과)
-1. **한 step 수치 검증 (CV)** — `A=[[1,0.1],[0,1]], B=[0,0.1], C=[1,0], Q=diag(0.01,0.05), R=5, x0=[0,0], P0=10·I`, `step(z=1.0, u=0.0)` → state[0] ≈ **0.6691**, state[1] ≈ **0.0662**
-2. **측정 우세 (R≪)** — `R=1e-9` → state[0] ≈ measurement
-3. **모델 우세 (R≫)** — `R=1e9, Q=diag(1e-9, 1e-9), P0=1e-9·I` → state ≈ 0
-4. **CV 트래킹** — v_truth=2.0, dt=0.1, 위치 N(0, 0.5) 노이즈 200 step 후 `|state[0] - truth_pos| < 0.5` AND `|state[1] - 2.0| < 0.3`
+학생이 푼 알고리즘 형태 (정통 Kalman / 단순 추정기 / 다른 방식) 는 제약 X — **behavioral spec** 만 본다.
+
+1. **CV 추적 RMS** — 등속 truth (v=2.0 m/s), 위치만 N(0, 0.5) 노이즈, 300 step, warm-up 이후 위치 RMS `< 0.5`, 속도 RMS `< 0.3`
+
+> RMS = √(bias² + variance). 상수/패스스루 류 trivial 구현은 임계값 초과로 차단.
 
 ## 힌트
 - 04 (1D Kalman) 의 6줄을 행렬 형태로 옮기는 게 핵심 — 표준 알고리즘이라 식 자체는 정답 노출 OK.

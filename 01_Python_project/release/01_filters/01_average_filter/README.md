@@ -36,9 +36,12 @@ uv run python 01_Python_project_refactored/release/01_filters/01_average_filter/
 → 기본 브라우저에 N(5, 1) 노이즈 샘플과 추정 평균을 plotly 그래프로 표시.
 
 ## 합격 기준 (`pytest` 통과)
-1. **첫 샘플 패스스루** — 첫 `step(x)` 호출이 `x` 그대로 반환
-2. **상수 입력 안정성** — 같은 값 반복 입력 시 평균 불변
-3. **수렴** — N(5, 1) 노이즈 1만 샘플 후 추정 오차 < 0.05
+학생이 푼 알고리즘 형태 (재귀 누적 / list mean / 다른 방식) 는 제약 X — **behavioral spec** 만 본다.
+
+1. **상수 입력 안정성** — `step(2.0)` 을 100 회 반복 호출 시 출력 `2.0` 유지
+2. **노이즈 추적 RMS** — 상수 truth=5 + N(0, 1) 노이즈 1만 표본, warm-up (100 표본) 이후 RMS 오차 `< 0.1`
+
+> RMS = √(bias² + variance). `return 0` (bias 임계값 초과) / `return x` (variance 임계값 초과) 모두 차단.
 
 ## 힌트
 - 재귀 형태: `다음 평균 = 이전 평균 + (새 측정값 - 이전 평균) / 표본수`

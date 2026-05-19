@@ -36,11 +36,12 @@ uv run python 01_Python_project_refactored/release/01_filters/02_moving_average_
 → N(5, 1) 노이즈 200 표본을 window=15 로 평활한 결과 plotly 그래프.
 
 ## 합격 기준 (`pytest` 통과)
-1. **첫 샘플 패스스루** — 첫 `step(x)` 호출이 `x` 그대로 반환
-2. **워밍업 단계 평균** — `window=5` 에 3개 입력 후 step 결과는 그 3개의 평균 (분모 3, not 5)
-3. **윈도우 채워진 후 평균** — `window=5` 에 5개 입력 후 5개 평균
-4. **윈도우 슬라이딩** — `window=3` 에 `[1, 1, 1, 5, 5, 5]` 입력 후 마지막 step 결과는 5.0 (앞쪽 1들 폐기)
-5. **상수 입력 안정성**
+학생이 푼 알고리즘 형태 (deque sliding / cumulative subtract / 다른 방식) 는 제약 X — **behavioral spec** 만 본다.
+
+1. **상수 입력 안정성** — `step(2.0)` 50 회 반복 시 출력 `2.0` 유지
+2. **노이즈 추적 RMS** — `window=20`, 상수 truth=5 + N(0, 1) 노이즈 1만 표본, warm-up 이후 RMS 오차 `< 0.4`
+
+> RMS = √(bias² + variance). `return 0` / `return x` 등 trivial 구현은 두 임계값 모두 초과로 차단.
 
 ## 힌트
 - `self.buffer.append(x)` 로 새 값 추가 (deque maxlen 이 자동으로 오래된 값 밀어냄)

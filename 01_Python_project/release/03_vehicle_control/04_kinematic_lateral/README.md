@@ -38,10 +38,9 @@ uv run python 01_Python_project_refactored/release/03_vehicle_control/simulator_
 > **시뮬레이터는 챕터 전체용** — 인자 없이 실행하면 `03_vehicle_control/` 하위 모든 시나리오를 한 viewer 에 별도 recording 으로 멀티 로드, viewer 좌측 Recordings 패널에서 클릭 전환. `--camera follow|fixed` 로 초기 카메라 (기본 `follow`).
 
 ## 합격 기준 (`pytest` 통과)
-1. **PID 식 일치**
-2. **첫 호출 D=0**
-3. **plant 조향 한계 검증** (controller 무관)
-4. **Y 추종 수렴** — `kp=0.2, kd=0.8, ki=0.0`, vx=3, Y_ref=4, sim 30s 후 `|Y-4| < 0.2`
+학생이 푼 알고리즘 형태 (정통 PID / 다른 처리) 는 제약 X — **behavioral spec** 만 본다.
+
+1. **Y 추적 오차** — `vx=3, Y_ref=4, kp=0.2, kd=0.8, ki=0.0`, 30 초 시뮬, tail 평균 `|Y 오차| < 0.2 m`, peak `< 4.2 m`
 
 ## 힌트
 - 조향각 단위 = 라디안 (degree 아님). plant 가 `±0.5 rad ≈ ±28.6°` 로 clip.

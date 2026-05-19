@@ -34,9 +34,11 @@ uv run python 01_Python_project_refactored/release/02_pid/01_p_controller/demo.p
 → 기본 브라우저에 폐루프 step response (1.0 → 0.0 수렴 곡선) plotly 그래프로 표시.
 
 ## 합격 기준 (`pytest` 통과)
-1. **P 식 일치** — `step(reference, measure)` 가 `Kp · (reference − measure)` 와 일치
-2. **Kp=0 시 출력 0** — `Kp = 0` 이면 입력과 무관하게 0 반환
-3. **폐루프 수렴** — 초기 위치 1.0, 목표 0.0, Kp=2.0, 30 초 시뮬 후 |위치| < 0.05
+학생이 푼 알고리즘 형태 (정통 비례 제어 / 다른 방식) 는 제약 X — **behavioral spec** 만 본다.
+
+1. **폐루프 추적 오차** — `y0=1.0, target=0.0, kp=2.0`, 30 초 시뮬, tail 평균 `|error| < 0.05`, peak `|error| < 1.2`
+
+> tail MAE = 정상상태 정확도, peak = 트랜지언트 발산/오버슈트 boundedness. trivial 구현 (`return 0` 등) 두 임계값 모두 초과로 차단.
 
 ## 힌트
 - 일반 형태: `u = Kp * error`, 여기서 `error = reference − measure`

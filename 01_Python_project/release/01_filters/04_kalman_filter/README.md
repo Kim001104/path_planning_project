@@ -62,10 +62,12 @@ uv run python 01_Python_project_refactored/release/01_filters/04_kalman_filter/t
 → 4 가지 (q, r) 조합 비교: 측정 추종 / 모델 의존 / 측정 그대로 / 균형.
 
 ## 합격 기준 (`pytest` 통과)
-1. **한 step 수치 검증** — `m=1, dt=0.01, q=0.1, r=0.9, p0=10` 에 `step(z=1.0, u=0.0)` 결과 ≈ **0.91965** (4자리 정밀도)
-2. **측정 우세 (R≪)** — `r=1e-9` 한 step 후 결과 ≈ measurement
-3. **모델 우세 (R≫)** — `r=1e9, q=1e-9, p0=1e-9` 한 step 후 K → 0, 결과 ≈ 0 (측정 거의 무시)
-4. **노이즈 측정 트래킹** — 상수 truth=5, control input `u=-5.0` (모델·truth 정합용 피드포워드), 1만 step 후 마지막 1000 step 평균이 truth ± 0.1
+학생이 푼 알고리즘 형태 (정통 Kalman / 단순 LPF 흉내 / 다른 추정기) 는 제약 X — **behavioral spec** 만 본다.
+
+1. **무노이즈 + feedforward 안정성** — `q=0.01, r=1.0, u=-truth` 정합 setup, 2000 step 후 `|x - truth| < 0.1`
+2. **노이즈 추적 RMS** — 위와 같은 setup 에 N(0, 1) 노이즈 측정 1만 step, warm-up 이후 RMS 오차 `< 0.3`
+
+> RMS = √(bias² + variance). trivial 구현 (`return 0` / `return measurement`) 은 두 임계값 중 하나 이상 초과로 차단.
 
 ## 힌트
 - 위 알고리즘 6줄을 그대로 옮기면 됩니다 — 표준 칼만이라 정답 식 자체는 노출 OK. 핵심은 정확히 코드로 옮기는 연습.

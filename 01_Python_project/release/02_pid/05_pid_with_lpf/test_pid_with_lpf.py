@@ -1,4 +1,8 @@
-"""PID + LPF integration regression — spec for both solutions and release."""
+"""PID + LPF integration regression — behavioral spec (requirements level).
+
+closed_loop_step 의 내부 순서 (measure → filter → control → actuate) 형태는 자유.
+인터페이스 (4-tuple 반환) + 외란/노이즈 시나리오의 평균·최대 오차로 합격 판정.
+"""
 import numpy as np
 from closed_loop_lpf import closed_loop_step
 from low_pass_filter import LowPassFilter
@@ -23,50 +27,39 @@ def _make_plant(seed: int) -> Plant:
     )
 
 
-def test_returns_4tuple_of_floats():
-    plant = _make_plant(SEED)
-    lpf = LowPassFilter(alpha=ALPHA)
-    pid = PIDController(kp=KP, kd=KD, ki=KI, dt=DT)
-    out = closed_loop_step(plant, lpf, pid, target=0.0)
-    assert isinstance(out, tuple) and len(out) == 4
-    for v in out:
-        assert isinstance(v, float), f"expected float, got {type(v)}"
-
-
-def test_filtered_loop_converges():
+def _run_filtered() -> tuple[list[float], list[float]]:
     plant = _make_plant(SEED)
     lpf = LowPassFilter(alpha=ALPHA)
     pid = PIDController(kp=KP, kd=KD, ki=KI, dt=DT)
     steps = int(SIM_TIME / DT)
-    y_trues = []
+    y_trues, us = [], []
     for _ in range(steps):
-        y_true, _, _, _ = closed_loop_step(plant, lpf, pid, target=0.0)
+        y_true, _, _, u = closed_loop_step(plant, lpf, pid, target=0.0)
         y_trues.append(y_true)
-    # 마지막 30초 (steps/2) 의 평균 절대 오차 < 0.15
-    tail_mean_err = float(np.mean(np.abs(y_trues[steps // 2:])))
-    assert tail_mean_err < 0.15, f"tail mean |y_true| too large: {tail_mean_err}"
+        us.append(u)
+    return y_trues, us
 
 
-def test_lpf_smooths_control_input_vs_raw():
-    """필터의 진짜 가치: D 항 노이즈 증폭을 차단해 actuator 출렁임 ↓.
+def test_filtered_loop_error_within_spec():
+    """LPF 폐루프 60 s: tail 평균 |오차| < 0.15, peak |오차| < 1.5."""
+    y_trues, _ = _run_filtered()
+    errs = np.abs(y_trues)
+    tail_mae = float(np.mean(errs[len(errs) // 2:]))
+    peak = float(np.max(errs))
+    assert tail_mae < 0.15, f"tail MAE {tail_mae:.4f} 임계값 초과"
+    assert peak < 1.5, f"peak |error| {peak:.4f} 임계값 초과"
 
-    추적 오차는 raw 와 비슷하지만 (LPF 위상 지연 때문) 제어 입력의 분산은 한 자리수 이상 감소.
+
+def test_lpf_reduces_control_variance_vs_raw():
+    """LPF 의 진짜 가치: D 항 노이즈 증폭 차단 → 제어 입력 std 5× 이상 감소.
+
+    추적 오차는 raw 와 비슷하지만 actuator 출렁임이 한 자리수 이상 줄어들어야.
+    LPF 효과 없는 구현 (필터 우회 등) 은 ratio < 5 로 차단.
     """
-    steps = int(SIM_TIME / DT)
-    tail_start = steps // 2
-
-    # filtered (student's closed_loop_step)
-    plant_f = _make_plant(SEED)
-    lpf = LowPassFilter(alpha=ALPHA)
-    pid_f = PIDController(kp=KP, kd=KD, ki=KI, dt=DT)
-    u_filtered = []
-    for _ in range(steps):
-        _, _, _, u = closed_loop_step(plant_f, lpf, pid_f, target=0.0)
-        u_filtered.append(u)
-
-    # raw baseline (estimator 우회) — 동일 seed 로 plant 생성
+    _, u_filtered = _run_filtered()
     plant_r = _make_plant(SEED)
     pid_r = PIDController(kp=KP, kd=KD, ki=KI, dt=DT)
+    steps = int(SIM_TIME / DT)
     u_raw = []
     for _ in range(steps):
         m = plant_r.measure()
@@ -74,9 +67,10 @@ def test_lpf_smooths_control_input_vs_raw():
         plant_r.step(u)
         u_raw.append(u)
 
-    std_filtered = float(np.std(u_filtered[tail_start:]))
-    std_raw = float(np.std(u_raw[tail_start:]))
+    tail = steps // 2
+    std_filtered = float(np.std(u_filtered[tail:]))
+    std_raw = float(np.std(u_raw[tail:]))
     assert std_filtered * 5.0 < std_raw, (
-        f"LPF should reduce control std by 5×+ vs raw; "
-        f"filtered={std_filtered:.4f}, raw={std_raw:.4f}, ratio={std_raw/std_filtered:.2f}x"
+        f"LPF 미적용/약함 의심 — filtered std={std_filtered:.4f}, raw std={std_raw:.4f}, "
+        f"감쇠비 {std_raw / std_filtered:.2f}× (임계값 5×)"
     )

@@ -1,48 +1,25 @@
-"""PurePursuit regression — spec for both solutions and release."""
+"""PurePursuit regression — behavioral spec (requirements level).
+
+알고리즘 형태 (정통 pure-pursuit / 다른 lookahead 처리) 는 자유.
+인터페이스만 맞으면 OK — pipeline 폐루프 lateral 추종의 평균·최대 오차로 합격 판정.
+"""
 import sys
 from pathlib import Path
 
 import numpy as np
 
-# 05_frame_transform 의 구현을 sys.path 로 직접 import (frame_transform 패턴).
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "05_frame_transform"))
 from frame_transform import Global2Local, PolynomialFitting, PolynomialValue
-from lateral_pipeline_pure_pursuit import LateralPipeline  # 본 폴더 (per-problem 사본)
+from lateral_pipeline_pure_pursuit import LateralPipeline
 from pure_pursuit import PurePursuit
 from vehicle_lat_pursuit import VehicleLat
 
 DT = 0.1
 
 
-def test_pure_pursuit_formula_known_inputs():
-    """coeff = [0, 0, 0, 1.0] (constant y=1.0), vx=4, L=4, lookahead=1.0
-       → d_lh=4, y_lh=1, δ = atan(2·4·1 / (16 + 1 + 1e-3))
-    """
-    pp = PurePursuit(L=4.0, lookahead_time=1.0)
-    coeff = np.array([[0.0], [0.0], [0.0], [1.0]])
-    out = pp.step(coeff, vx=4.0)
-    expected = float(np.arctan(8.0 / (17.0 + 1e-3)))
-    assert abs(out - expected) < 1e-12
-
-
-def test_stateless():
-    """같은 입력 → 같은 출력 (내부 상태 없음)."""
-    pp = PurePursuit(L=4.0)
-    coeff = np.array([[0.01], [0.02], [0.1], [0.5]])
-    out1 = pp.step(coeff, vx=3.0)
-    out2 = pp.step(coeff, vx=3.0)
-    assert out1 == out2
-
-
-def test_zero_path_zero_steering():
-    pp = PurePursuit(L=4.0)
-    coeff = np.zeros((4, 1))
-    assert pp.step(coeff, vx=5.0) == 0.0
-
-
-def test_curved_path_tracking():
-    """step(40m)+sin path, vx=3, sim 30s (Y0=2 도로 밖 시작), 평균 |lateral error| < 0.5.
-    본 폴더의 lateral_pipeline_pure_pursuit 경유로 검증.
+def test_curved_path_tracking_within_spec():
+    """직선(40m) + sin path, vx=3, Y0=2 (도로 밖 시작), 30 s:
+       tail 평균 |lateral err| < 0.4, peak < 2.2.
     """
     sim_time = 30.0
     vx = 3.0
@@ -73,6 +50,9 @@ def test_curved_path_tracking():
         plant.step(out.delta, vx)
         ref_at_ego = 0.0 if plant.X < 40.0 else 2.0 * (np.cos((plant.X - 40.0) / 14.0) - 1.0)
         errs.append(abs(plant.Y - ref_at_ego))
+    errs = np.array(errs)
 
-    mean_err = float(np.mean(errs))
-    assert mean_err < 0.5, f"PurePursuit cos-path mean error: {mean_err}"
+    tail_mae = float(np.mean(errs[len(errs) // 2:]))
+    peak = float(np.max(errs))
+    assert tail_mae < 0.4, f"tail lat MAE {tail_mae:.4f} m 임계값 초과"
+    assert peak < 2.2, f"peak |lat error| {peak:.4f} m 임계값 초과"

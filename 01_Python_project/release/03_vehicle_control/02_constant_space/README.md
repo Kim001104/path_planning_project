@@ -43,9 +43,14 @@ uv run python 01_Python_project_refactored/release/03_vehicle_control/simulator_
 > **시뮬레이터는 챕터 전체용** — 인자 없이 실행하면 `03_vehicle_control/` 하위 모든 시나리오를 한 viewer 에 별도 recording 으로 멀티 로드, viewer 좌측 Recordings 패널에서 클릭 전환. `--camera follow|fixed` 로 초기 카메라 (기본 `follow`).
 
 ## 합격 기준 (`pytest` 통과)
-1. **error 정의 일치** — `(target_x - ego_x) - target_space` (부호 주의)
-2. **첫 호출 D=0**
-3. **PD-only 잔류 오차 입증** — `Ki=0` 일 때 ego drag 외란 → 잔류 오차 ≈ 1.25m (이론값 `drag/Kp`). 본 커리큘럼은 target control 을 **PD 로 유지** — I 항은 이론에서만 언급, 합격 기준에는 포함 X.
+학생이 푼 알고리즘 형태 (정통 PID / 다른 처리) 는 제약 X — **behavioral spec** 만 본다.
+
+1. **PD-only 추종 안전성·boundedness** — 80 초 시뮬:
+   - 충돌 없음 (`min gap > 5 m`)
+   - 정상상태 gap 이 `target_space` 근방 (tail MAE `< 3 m`)
+   - 발산 없음 (peak `|gap - target_space| < 12 m`)
+
+> PD-only 의 잔류 offset (drag 외란) 자체가 학습 포인트 — 충돌·발산만 막으면 합격. I 항은 본 과제 범위 밖.
 
 ## 힌트
 - error 의 핵심은 부호: `(target_x - ego_x) - space`. 멀면 양수 → 가속, 가까우면 음수 → 감속.

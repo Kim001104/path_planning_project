@@ -45,9 +45,12 @@ uv run python 01_Python_project_refactored/release/02_pid/05_pid_with_lpf/demo.p
 → true / 노이즈 측정 / LPF 추정 + 제어 입력 u 의 2 패널 plotly.
 
 ## 합격 기준 (`pytest` 통과)
-1. **반환 4-튜플** — `(y_true, y_measure, y_estimate, u)` 모두 float
-2. **필터 폐루프 수렴** — 시뮬 60 초 후반 30 초의 평균 |y_true| < 0.15
-3. **LPF 가 raw 보다 actuator 부드러움 우수** — 동일 plant 에 raw 측정값을 PID 에 직접 넣은 베이스라인 대비 **제어 입력 표준편차가 1/5 이하** (즉 5 배 이상 부드러움)
+학생이 짠 `closed_loop_step` 의 내부 순서 (measure → filter → control → actuate) 형태는 제약 X — 인터페이스 + behavioral spec 만 본다.
+
+1. **필터 폐루프 추적 오차** — 외란 0.1, 노이즈 std 0.25, seed 42, 60 초 시뮬, tail 평균 `|y_true| < 0.15`, peak < 1.5
+2. **LPF 가 raw 대비 actuator 부드러움 우수** — 동일 plant 에 raw 측정값을 PID 에 직접 넣은 베이스라인 대비 **제어 입력 std 가 1/5 이하** (5 배 이상 부드러움)
+
+> 필터 우회/약한 필터링 구현은 std ratio < 5 로 차단.
 
 ## 힌트
 - 4 단계 호출 순서를 정확히 — **estimator 갱신이 controller 앞서야** 추정값으로 제어 가능.

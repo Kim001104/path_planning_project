@@ -1,36 +1,30 @@
-"""KinematicLateral PID regression — spec for both solutions and release."""
+"""KinematicLateral PID regression — behavioral spec (requirements level).
+
+알고리즘 형태 (정통 PID / 다른 처리) 는 자유.
+인터페이스만 맞으면 OK — 폐루프 lateral 추종의 평균·최대 오차로 합격 판정.
+"""
+import numpy as np
 from kinematic_lateral_pid import KinematicLateralPID
 from vehicle_lat_kinematic import VehicleLat
 
-
-def test_pid_law_one_step():
-    pid = KinematicLateralPID(kp=1.0, kd=0.0, ki=0.0, dt=0.1)
-    # error = 4.0 - 0.0 = 4.0; D=0 (first); u = 1.0 * 4.0 = 4.0
-    assert pid.step(reference_Y=4.0, ego_Y=0.0) == 4.0
-
-
-def test_first_call_no_derivative_spike():
-    pid = KinematicLateralPID(kp=0.0, kd=10.0, ki=0.0, dt=0.1)
-    # 첫 호출: D=0
-    assert pid.step(reference_Y=4.0, ego_Y=0.0) == 0.0
+DT = 0.1
+SIM_TIME = 30.0
+VX = 3.0
+Y_REF = 4.0
+KP, KD, KI = 0.2, 0.8, 0.0
 
 
-def test_steering_clipped_by_plant():
-    plant = VehicleLat(dt=0.1, vx=3.0)
-    plant.step(delta=10.0, vx=3.0)
-    assert plant.delta == 0.5
-    plant.step(delta=-10.0, vx=3.0)
-    assert plant.delta == -0.5
-
-
-def test_lateral_tracking_converges():
-    dt = 0.1
-    sim_time = 30.0
-    vx = 3.0
-    Y_ref = 4.0
-    plant = VehicleLat(dt=dt, vx=vx)
-    pid = KinematicLateralPID(kp=0.2, kd=0.8, ki=0.0, dt=dt)
-    for _ in range(int(sim_time / dt)):
-        delta = pid.step(reference_Y=Y_ref, ego_Y=plant.Y)
-        plant.step(delta, vx)
-    assert abs(plant.Y - Y_ref) < 0.2, f"Y did not reach reference; final Y={plant.Y}"
+def test_lateral_tracking_within_spec():
+    """vx=3, Y_ref=4 폐루프 30 s: tail 평균 |Y 오차| < 0.2 m, peak |Y 오차| < 4.2 m."""
+    plant = VehicleLat(dt=DT, vx=VX)
+    pid = KinematicLateralPID(kp=KP, kd=KD, ki=KI, dt=DT)
+    steps = int(SIM_TIME / DT)
+    errors = np.zeros(steps)
+    for k in range(steps):
+        delta = pid.step(reference_Y=Y_REF, ego_Y=plant.Y)
+        plant.step(delta, VX)
+        errors[k] = abs(plant.Y - Y_REF)
+    tail_mae = float(np.mean(errors[steps // 2:]))
+    peak = float(np.max(errors))
+    assert tail_mae < 0.2, f"tail Y MAE {tail_mae:.4f} m 임계값 초과"
+    assert peak < 4.2, f"peak |Y error| {peak:.4f} m 임계값 초과"

@@ -1,33 +1,33 @@
-"""PD Controller regression — spec for both solutions and release."""
+"""PD Controller regression — behavioral spec (requirements level).
+
+알고리즘 형태 (정통 PD / 다른 derivative 처리) 는 자유.
+인터페이스만 맞으면 OK — 폐루프 평균·최대 오차로 합격 판정.
+"""
+import numpy as np
 from pd_controller import PDController
 from plant_pd import Plant
 
-
-def test_p_subset_when_kd_zero():
-    pid = PDController(kp=2.0, kd=0.0, dt=0.1)
-    assert pid.step(reference=10.0, measure=4.0) == 12.0
-    assert pid.step(reference=0.0, measure=5.0) == -10.0
-    assert pid.step(reference=0.0, measure=0.0) == 0.0
-
-
-def test_first_call_has_no_d_contribution():
-    pid = PDController(kp=2.0, kd=5.0, dt=0.1)
-    # 첫 호출: prev_error 미정 → D = 0
-    assert pid.step(reference=1.0, measure=0.0) == 2.0
+DT = 0.1
+SIM_TIME = 30.0
+Y0 = 1.0
+KP = 2.0
+KD = 1.0
 
 
-def test_derivative_term_formula():
-    pid = PDController(kp=2.0, kd=3.0, dt=0.1)
-    pid.step(reference=1.0, measure=0.0)        # error1 = 1.0
-    out = pid.step(reference=1.0, measure=0.5)  # error2 = 0.5
-    # u = kp*0.5 + kd*((0.5 - 1.0)/0.1) = 1.0 + 3.0*(-5.0) = -14.0
-    assert out == -14.0
+def test_closed_loop_error_within_spec():
+    """y0=1, target=0, KP=2/KD=1 폐루프 30 s: tail 평균 |오차| < 0.01, peak |오차| < 1.2.
 
-
-def test_closed_loop_converges():
-    dt = 0.1
-    plant = Plant(dt, y0=1.0)
-    controller = PDController(kp=2.0, kd=1.0, dt=dt)
-    for _ in range(int(30 / dt)):
-        plant.step(controller.step(reference=0.0, measure=plant.y))
-    assert abs(plant.y) < 5e-3, f"closed loop did not converge; final y={plant.y}"
+    PD 의 D 항이 P 단독 대비 트랜지언트를 더 빨리 잠재워 tail MAE 가 훨씬 작아야 함.
+    Trivial 구현 (return 0 / kp 만) 은 두 임계값 모두 초과로 차단.
+    """
+    plant = Plant(DT, y0=Y0)
+    controller = PDController(kp=KP, kd=KD, dt=DT)
+    steps = int(SIM_TIME / DT)
+    errors = np.zeros(steps)
+    for k in range(steps):
+        u = controller.step(reference=0.0, measure=plant.y)
+        errors[k] = abs(plant.step(u))
+    tail_mae = float(np.mean(errors[steps // 2:]))
+    peak = float(np.max(errors))
+    assert tail_mae < 0.01, f"tail MAE {tail_mae:.4f} 임계값 초과"
+    assert peak < 1.2, f"peak |error| {peak:.4f} 임계값 초과"

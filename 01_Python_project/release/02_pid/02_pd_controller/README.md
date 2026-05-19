@@ -35,10 +35,11 @@ uv run python 01_Python_project_refactored/release/02_pid/02_pd_controller/demo.
 → 기본 브라우저에 P-only vs PD 비교 plotly 그래프 (위치 패널 + 제어 입력 패널).
 
 ## 합격 기준 (`pytest` 통과)
-1. **Kd=0 시 P 동작** — `kd=0` 이면 `step` 결과가 P 제어기와 동일 (`Kp · 오차`)
-2. **첫 호출 D=0** — `kd ≠ 0` 이어도 첫 호출에선 D 기여 0 (`Kp · 오차` 만 반환)
-3. **D 항 식** — 두 번째 호출부터 `Kd · (오차 − 이전오차) / dt` 가 정상 반영
-4. **폐루프 수렴 (PD 가 P 보다 빠름)** — `Kp=2.0, Kd=1.0, dt=0.1`, 초기 1.0, 목표 0.0, 30 초 시뮬 후 위치 절대값 < 5e-3 (P-only 로는 못 넘기는 기준)
+학생이 푼 알고리즘 형태 (정통 PD / 다른 derivative 처리) 는 제약 X — **behavioral spec** 만 본다.
+
+1. **폐루프 추적 오차** — `y0=1.0, target=0.0, kp=2.0, kd=1.0`, 30 초 시뮬, tail 평균 `|error| < 0.01`, peak `|error| < 1.2`
+
+> PD 의 D 항이 P 단독 대비 트랜지언트를 더 빨리 잠재워 tail MAE 가 훨씬 작아야 함. trivial / P-only 구현은 tail 임계값 초과로 차단.
 
 ## 힌트
 - 일반 형태: `u = Kp · 오차 + Kd · 오차의 시간 미분` (`오차 = 목표 − 현재`)

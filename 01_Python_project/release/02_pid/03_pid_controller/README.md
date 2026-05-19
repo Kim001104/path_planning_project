@@ -35,11 +35,11 @@ uv run python 01_Python_project_refactored/release/02_pid/03_pid_controller/demo
 → 외란이 있는 plant 에서 PD (Ki=0) vs PID (Ki=0.5) 비교 — 위치/제어 입력 2 패널.
 
 ## 합격 기준 (`pytest` 통과)
-1. **PD 서브셋** — `ki=0` 이면 결과가 PD 와 동일
-2. **첫 호출 D=0** — 이전 오차가 없으면 D 기여 0 (PD 과제와 동일 정책)
-3. **적분 누적식** — `error_sum` 이 `Σ (오차 · dt)` 와 일치 (`dt` 곱 잊지 말 것)
-4. **PD 단독 한계 입증** — 외란 0.5 plant 에서 `Ki=0` 일 때 잔류 오차 ≥ 0.1 — 이 테스트가 통과(=fail expected behavior)해야 PID 의 존재 의의 검증
-5. **PID 수렴** — 외란 0.5 plant + `Kp=2, Kd=1, Ki=0.5`, 60 초 시뮬 후 위치 절대값 < 0.05
+학생이 푼 알고리즘 형태 (정통 PID / 다른 integral 누적 방식) 는 제약 X — **behavioral spec** 만 본다.
+
+1. **외란 하 폐루프 추적 오차** — 외란 0.5, `kp=2.0, kd=1.0, ki=0.5`, 60 초 시뮬, tail 평균 `|error| < 0.05`, peak `|error| < 1.5`
+
+> I 항이 외란을 적분 보상해야 tail MAE 가 작음 (PD-only 면 잔류 오차 > 0.2 남음). I 항 누락 구현은 tail 임계값 초과로 차단.
 
 ## 힌트
 - 식: `u = Kp · 오차 + Kd · 오차의 미분 + Ki · 오차의 누적합`
