@@ -28,11 +28,20 @@ class PDController:
 uv run pytest 01_Python_project_refactored/release/02_pid/02_pd_controller/ -v
 ```
 
-데모 (시각 확인, 선택 — 구현 후):
+시나리오 실행 → `record.json` 생성 + Rerun viewer 자동 띄움:
 ```bash
-uv run python 01_Python_project_refactored/release/02_pid/02_pd_controller/demo.py
+uv run python 01_Python_project_refactored/release/02_pid/02_pd_controller/record_gen.py
 ```
-→ 기본 브라우저에 P-only vs PD 비교 plotly 그래프 (위치 패널 + 제어 입력 패널).
+→ P 보다 빠르게 차로 중앙으로 수렴 — D 항 기여로 트랜지언트 축소. X 는 시각용 일정 vx=5 m/s 전진.
+
+> JSON 만 만들고 viewer 안 띄우려면 record_gen 명령에 `--no-viewer` 옵션 추가.
+
+Rerun viewer 로 재생:
+```bash
+uv run python 01_Python_project_refactored/release/02_pid/simulator_pid.py 01_Python_project_refactored/release/02_pid/02_pd_controller/
+```
+
+> **시뮬레이터는 챕터 전체용** — 인자 없이 실행하면 `02_pid/` 하위 모든 시나리오를 한 viewer 에 별도 recording 으로 멀티 로드, viewer 좌측 Recordings 패널에서 클릭 전환. `--camera follow|fixed` 로 초기 카메라 (기본 `follow`).
 
 ## 합격 기준 (`pytest` 통과)
 학생이 푼 알고리즘 형태 (정통 PD / 다른 derivative 처리) 는 제약 X — **behavioral spec** 만 본다.

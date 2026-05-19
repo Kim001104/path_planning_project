@@ -32,11 +32,20 @@ KI: float = 0.0
 uv run pytest 01_Python_project_refactored/release/02_pid/04_pid_tuning/ -v
 ```
 
-데모 (튜닝 보조 — **반복 실행 권장**):
+시나리오 실행 → `record.json` 생성 + Rerun viewer 자동 띄움 (**튜닝 보조 — 반복 실행 권장**):
 ```bash
-uv run python 01_Python_project_refactored/release/02_pid/04_pid_tuning/demo.py
+uv run python 01_Python_project_refactored/release/02_pid/04_pid_tuning/record_gen.py
 ```
-→ 위치 응답 + 제어 입력을 plotly 2 패널로 표시. 게인 조정 → 데모 → 모양 보고 다시 조정.
+→ 학생이 채운 `tuning.py` 의 KP/KD/KI 로 폐루프 응답. 차량이 차로 중앙으로 수렴하는 모양 + control 시계열을 보고 게인 재조정.
+
+> JSON 만 만들고 viewer 안 띄우려면 record_gen 명령에 `--no-viewer` 옵션 추가.
+
+Rerun viewer 로 재생:
+```bash
+uv run python 01_Python_project_refactored/release/02_pid/simulator_pid.py 01_Python_project_refactored/release/02_pid/04_pid_tuning/
+```
+
+> **시뮬레이터는 챕터 전체용** — 인자 없이 실행하면 `02_pid/` 하위 모든 시나리오를 한 viewer 에 별도 recording 으로 멀티 로드, viewer 좌측 Recordings 패널에서 클릭 전환. `--camera follow|fixed` 로 초기 카메라 (기본 `follow`).
 
 ## 합격 기준 (`pytest` 통과)
 학생이 채운 `KP/KD/KI` 값으로 평가 — 게인 부호/크기 제약 X, **behavioral spec** 만 본다.

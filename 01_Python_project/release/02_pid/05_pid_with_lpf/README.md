@@ -38,11 +38,20 @@ def closed_loop_step(
 uv run pytest 01_Python_project_refactored/release/02_pid/05_pid_with_lpf/ -v
 ```
 
-데모 (선택):
+시나리오 실행 → `record.json` 생성 + Rerun viewer 자동 띄움:
 ```bash
-uv run python 01_Python_project_refactored/release/02_pid/05_pid_with_lpf/demo.py
+uv run python 01_Python_project_refactored/release/02_pid/05_pid_with_lpf/record_gen.py
 ```
-→ true / 노이즈 측정 / LPF 추정 + 제어 입력 u 의 2 패널 plotly.
+→ ego (파랑) 가 true Y, 노란 점 = noisy measurement, 청록 점 = LPF estimate. 필터가 noise 를 얼마나 부드럽게 만드는지 3D + scalar 양쪽으로 관찰.
+
+> JSON 만 만들고 viewer 안 띄우려면 record_gen 명령에 `--no-viewer` 옵션 추가.
+
+Rerun viewer 로 재생:
+```bash
+uv run python 01_Python_project_refactored/release/02_pid/simulator_pid.py 01_Python_project_refactored/release/02_pid/05_pid_with_lpf/
+```
+
+> **시뮬레이터는 챕터 전체용** — 인자 없이 실행하면 `02_pid/` 하위 모든 시나리오를 한 viewer 에 별도 recording 으로 멀티 로드, viewer 좌측 Recordings 패널에서 클릭 전환. `--camera follow|fixed` 로 초기 카메라 (기본 `follow`).
 
 ## 합격 기준 (`pytest` 통과)
 학생이 짠 `closed_loop_step` 의 내부 순서 (measure → filter → control → actuate) 형태는 제약 X — 인터페이스 + behavioral spec 만 본다.
