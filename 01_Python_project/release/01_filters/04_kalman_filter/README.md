@@ -38,7 +38,7 @@ class KalmanFilter:
 - 학생이 작성할 부분은 `step` 의 6 줄 (predict 2 + update 3 + return 1)
 
 ## 구현 위치
-`01_Python_project_refactored/release/01_filters/04_kalman_filter/kalman_filter.py` 의 `step` 메소드 안 `# TODO:` 블록.
+`01_Python_project/release/01_filters/04_kalman_filter/kalman_filter.py` 의 `step` 메소드 안 `# TODO:` 블록.
 
 ## 실행
 
@@ -46,18 +46,18 @@ class KalmanFilter:
 
 테스트 (합격 검증):
 ```bash
-uv run pytest 01_Python_project_refactored/release/01_filters/04_kalman_filter/ -v
+uv run pytest 01_Python_project/release/01_filters/04_kalman_filter/ -v
 ```
 
 데모 (시각 확인, 선택 — 구현 후):
 ```bash
-uv run python 01_Python_project_refactored/release/01_filters/04_kalman_filter/demo.py
+uv run python 01_Python_project/release/01_filters/04_kalman_filter/demo.py
 ```
 → 상수 truth (5.0) + N(0, 1) 노이즈 측정 500 표본을 칼만으로 추정한 결과 plotly 그래프.
 
 튜닝 데모 (선택 — 구현 후):
 ```bash
-uv run python 01_Python_project_refactored/release/01_filters/04_kalman_filter/tuning_demo.py
+uv run python 01_Python_project/release/01_filters/04_kalman_filter/tuning_demo.py
 ```
 → 4 가지 (q, r) 조합 비교: 측정 추종 / 모델 의존 / 측정 그대로 / 균형.
 

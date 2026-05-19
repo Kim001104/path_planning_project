@@ -16,7 +16,7 @@ class PController:
 - `step(ref, m)` — 매 호출마다 새 제어 입력을 반환. **내부 상태 없음** (P 제어기는 memoryless).
 
 ## 구현 위치
-`01_Python_project_refactored/release/02_pid/01_p_controller/p_controller.py` 의 `step` 메소드 안 `# TODO:` 블록.
+`01_Python_project/release/02_pid/01_p_controller/p_controller.py` 의 `step` 메소드 안 `# TODO:` 블록.
 
 ## 실행
 
@@ -24,12 +24,12 @@ class PController:
 
 테스트 (합격 검증):
 ```bash
-uv run pytest 01_Python_project_refactored/release/02_pid/01_p_controller/ -v
+uv run pytest 01_Python_project/release/02_pid/01_p_controller/ -v
 ```
 
 시나리오 실행 → `record.json` 생성 + Rerun viewer 자동 띄움:
 ```bash
-uv run python 01_Python_project_refactored/release/02_pid/01_p_controller/record_gen.py
+uv run python 01_Python_project/release/02_pid/01_p_controller/record_gen.py
 ```
 → 파란 차량이 차로 중앙 (Y=0) 으로 수렴 (P 잔류 진동 약간). X 는 시각용 일정 vx=5 m/s 전진.
 
@@ -37,7 +37,7 @@ uv run python 01_Python_project_refactored/release/02_pid/01_p_controller/record
 
 Rerun viewer 로 재생:
 ```bash
-uv run python 01_Python_project_refactored/release/02_pid/simulator_pid.py 01_Python_project_refactored/release/02_pid/01_p_controller/
+uv run python 01_Python_project/release/02_pid/simulator_pid.py 01_Python_project/release/02_pid/01_p_controller/
 ```
 
 > **시뮬레이터는 챕터 전체용** — 인자 없이 실행하면 `02_pid/` 하위 모든 시나리오를 한 viewer 에 별도 recording 으로 멀티 로드, viewer 좌측 Recordings 패널에서 클릭 전환. `--camera follow|fixed` 로 초기 카메라 (기본 `follow`).

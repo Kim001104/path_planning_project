@@ -17,7 +17,7 @@ class AverageFilter:
 - 내부에 표본 수와 현재 평균만 보관 (전체 입력 배열 저장 금지)
 
 ## 구현 위치
-`01_Python_project_refactored/release/01_filters/01_average_filter/average_filter.py` 의 `step` 메소드 안 `# TODO:` 블록.
+`01_Python_project/release/01_filters/01_average_filter/average_filter.py` 의 `step` 메소드 안 `# TODO:` 블록.
 다른 파일/시그니처는 건드리지 않습니다.
 
 ## 실행
@@ -26,12 +26,12 @@ class AverageFilter:
 
 테스트 (합격 검증):
 ```bash
-uv run pytest 01_Python_project_refactored/release/01_filters/01_average_filter/ -v
+uv run pytest 01_Python_project/release/01_filters/01_average_filter/ -v
 ```
 
 데모 (시각 확인, 선택 — 구현 후):
 ```bash
-uv run python 01_Python_project_refactored/release/01_filters/01_average_filter/demo.py
+uv run python 01_Python_project/release/01_filters/01_average_filter/demo.py
 ```
 → 기본 브라우저에 N(5, 1) 노이즈 샘플과 추정 평균을 plotly 그래프로 표시.
 

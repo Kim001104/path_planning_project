@@ -17,7 +17,7 @@ class PDController:
 - 내부 상태로 `prev_error` 를 보관 — 첫 호출 시점엔 `None` (이전 오차 없음).
 
 ## 구현 위치
-`01_Python_project_refactored/release/02_pid/02_pd_controller/pd_controller.py` 의 `step` 메소드 안 `# TODO:` 블록.
+`01_Python_project/release/02_pid/02_pd_controller/pd_controller.py` 의 `step` 메소드 안 `# TODO:` 블록.
 
 ## 실행
 
@@ -25,12 +25,12 @@ class PDController:
 
 테스트 (합격 검증):
 ```bash
-uv run pytest 01_Python_project_refactored/release/02_pid/02_pd_controller/ -v
+uv run pytest 01_Python_project/release/02_pid/02_pd_controller/ -v
 ```
 
 시나리오 실행 → `record.json` 생성 + Rerun viewer 자동 띄움:
 ```bash
-uv run python 01_Python_project_refactored/release/02_pid/02_pd_controller/record_gen.py
+uv run python 01_Python_project/release/02_pid/02_pd_controller/record_gen.py
 ```
 → P 보다 빠르게 차로 중앙으로 수렴 — D 항 기여로 트랜지언트 축소. X 는 시각용 일정 vx=5 m/s 전진.
 
@@ -38,7 +38,7 @@ uv run python 01_Python_project_refactored/release/02_pid/02_pd_controller/recor
 
 Rerun viewer 로 재생:
 ```bash
-uv run python 01_Python_project_refactored/release/02_pid/simulator_pid.py 01_Python_project_refactored/release/02_pid/02_pd_controller/
+uv run python 01_Python_project/release/02_pid/simulator_pid.py 01_Python_project/release/02_pid/02_pd_controller/
 ```
 
 > **시뮬레이터는 챕터 전체용** — 인자 없이 실행하면 `02_pid/` 하위 모든 시나리오를 한 viewer 에 별도 recording 으로 멀티 로드, viewer 좌측 Recordings 패널에서 클릭 전환. `--camera follow|fixed` 로 초기 카메라 (기본 `follow`).

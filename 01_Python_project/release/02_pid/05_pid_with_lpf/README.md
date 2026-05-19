@@ -11,7 +11,7 @@ LPF 로 측정값을 평활한 뒤 PID 에 넣는 **닫힌 루프 결합 함수*
 - 알고리즘(LPF, PID)은 이미 학습한 모듈 — 이번엔 **결합 글루** 만 작성
 
 ## 인터페이스 계약 (학생 작성 위치)
-**파일**: `01_Python_project_refactored/release/02_pid/05_pid_with_lpf/closed_loop_lpf.py`
+**파일**: `01_Python_project/release/02_pid/05_pid_with_lpf/closed_loop_lpf.py`
 
 ```python
 def closed_loop_step(
@@ -27,7 +27,7 @@ def closed_loop_step(
 4. `plant.step(u)` — actuator → 동역학 한 스텝
 
 ## 구현 위치
-`01_Python_project_refactored/release/02_pid/05_pid_with_lpf/closed_loop_lpf.py` 의 함수 본문 `# TODO:` 블록.
+`01_Python_project/release/02_pid/05_pid_with_lpf/closed_loop_lpf.py` 의 함수 본문 `# TODO:` 블록.
 
 ## 실행
 
@@ -35,12 +35,12 @@ def closed_loop_step(
 
 테스트:
 ```bash
-uv run pytest 01_Python_project_refactored/release/02_pid/05_pid_with_lpf/ -v
+uv run pytest 01_Python_project/release/02_pid/05_pid_with_lpf/ -v
 ```
 
 시나리오 실행 → `record.json` 생성 + Rerun viewer 자동 띄움:
 ```bash
-uv run python 01_Python_project_refactored/release/02_pid/05_pid_with_lpf/record_gen.py
+uv run python 01_Python_project/release/02_pid/05_pid_with_lpf/record_gen.py
 ```
 → ego (파랑) 가 true Y, 노란 점 = noisy measurement, 청록 점 = LPF estimate. 필터가 noise 를 얼마나 부드럽게 만드는지 3D + scalar 양쪽으로 관찰.
 
@@ -48,7 +48,7 @@ uv run python 01_Python_project_refactored/release/02_pid/05_pid_with_lpf/record
 
 Rerun viewer 로 재생:
 ```bash
-uv run python 01_Python_project_refactored/release/02_pid/simulator_pid.py 01_Python_project_refactored/release/02_pid/05_pid_with_lpf/
+uv run python 01_Python_project/release/02_pid/simulator_pid.py 01_Python_project/release/02_pid/05_pid_with_lpf/
 ```
 
 > **시뮬레이터는 챕터 전체용** — 인자 없이 실행하면 `02_pid/` 하위 모든 시나리오를 한 viewer 에 별도 recording 으로 멀티 로드, viewer 좌측 Recordings 패널에서 클릭 전환. `--camera follow|fixed` 로 초기 카메라 (기본 `follow`).

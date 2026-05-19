@@ -17,7 +17,7 @@ class PIDController:
 - 첫 호출 시 D 항 처리 정책은 PD 과제와 동일 (이전 오차 없으면 D 기여 0).
 
 ## 구현 위치
-`01_Python_project_refactored/release/02_pid/03_pid_controller/pid_controller.py` 의 `step` 메소드 안 `# TODO:` 블록.
+`01_Python_project/release/02_pid/03_pid_controller/pid_controller.py` 의 `step` 메소드 안 `# TODO:` 블록.
 
 ## 실행
 
@@ -25,12 +25,12 @@ class PIDController:
 
 테스트:
 ```bash
-uv run pytest 01_Python_project_refactored/release/02_pid/03_pid_controller/ -v
+uv run pytest 01_Python_project/release/02_pid/03_pid_controller/ -v
 ```
 
 시나리오 실행 → `record.json` 생성 + Rerun viewer 자동 띄움:
 ```bash
-uv run python 01_Python_project_refactored/release/02_pid/03_pid_controller/record_gen.py
+uv run python 01_Python_project/release/02_pid/03_pid_controller/record_gen.py
 ```
 → 외란 0.5 하에서 두 차량 동시 시뮬: PD (회색) 는 차로 중앙 위쪽으로 offset, PID (파랑) 는 중앙으로 수렴 — I 항의 외란 보상 효과 3D 시각화.
 
@@ -38,7 +38,7 @@ uv run python 01_Python_project_refactored/release/02_pid/03_pid_controller/reco
 
 Rerun viewer 로 재생:
 ```bash
-uv run python 01_Python_project_refactored/release/02_pid/simulator_pid.py 01_Python_project_refactored/release/02_pid/03_pid_controller/
+uv run python 01_Python_project/release/02_pid/simulator_pid.py 01_Python_project/release/02_pid/03_pid_controller/
 ```
 
 > **시뮬레이터는 챕터 전체용** — 인자 없이 실행하면 `02_pid/` 하위 모든 시나리오를 한 viewer 에 별도 recording 으로 멀티 로드, viewer 좌측 Recordings 패널에서 클릭 전환. `--camera follow|fixed` 로 초기 카메라 (기본 `follow`).

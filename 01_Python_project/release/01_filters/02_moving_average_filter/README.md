@@ -18,7 +18,7 @@ class MovingAverageFilter:
 - `__init__` 은 이미 작성되어 있음 — `self.buffer` (deque, maxlen=window) 가 준비됨
 
 ## 구현 위치
-`01_Python_project_refactored/release/01_filters/02_moving_average_filter/moving_average_filter.py` 의 `step` 메소드 안 `# TODO:` 블록.
+`01_Python_project/release/01_filters/02_moving_average_filter/moving_average_filter.py` 의 `step` 메소드 안 `# TODO:` 블록.
 
 ## 실행
 
@@ -26,12 +26,12 @@ class MovingAverageFilter:
 
 테스트 (합격 검증):
 ```bash
-uv run pytest 01_Python_project_refactored/release/01_filters/02_moving_average_filter/ -v
+uv run pytest 01_Python_project/release/01_filters/02_moving_average_filter/ -v
 ```
 
 데모 (시각 확인, 선택 — 구현 후):
 ```bash
-uv run python 01_Python_project_refactored/release/01_filters/02_moving_average_filter/demo.py
+uv run python 01_Python_project/release/01_filters/02_moving_average_filter/demo.py
 ```
 → N(5, 1) 노이즈 200 표본을 window=15 로 평활한 결과 plotly 그래프.
 
