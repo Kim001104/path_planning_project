@@ -44,6 +44,7 @@ class LateralPipeline:
         self.sample_xs = np.asarray(sample_xs, dtype=float)
         self.x_local = np.asarray(x_local, dtype=float)
 
+
     def step(
         self,
         x_ego: float,
@@ -84,6 +85,7 @@ class LateralPipeline:
         delta = self.controller.step(coeff, vx)
         y_lh = _polyval_at(coeff, lookahead_x)
 
+        de = 1
         return PipelineOutput(
             delta=float(delta),
             coeff=coeff,
