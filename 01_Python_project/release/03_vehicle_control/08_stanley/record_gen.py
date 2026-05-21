@@ -1,4 +1,4 @@
-"""Stanley — cos 경로 추종 (vx=3 m/s, k=1.0).
+"""Stanley — cos 경로 추종 (vx=10 m/s, k=1.0).
 
 record.json (Rerun 재생용 sidecar) 을 생성. `--plot` 시 plotly subplot 도.
 본 driver 는 본 폴더의 LateralPipeline 을 호출 — perception+fit+control 흐름은
@@ -34,7 +34,7 @@ SAMPLE_XS = np.arange(NUM_POINT) * 1.0
 
 
 def _ref_y(x):
-    """직선(첫 20m) → sine(이후) 경로. 차량은 도로 밖(Y0=2)에서 시작 — 첫 step 응답 +
+    """직선(첫 40m) → sine(이후) 경로. 차량은 차선 중앙(Y0=0)에서 시작.
     sine 진입을 함께 학습."""
     L_straight = 40.0
     if np.isscalar(x):
@@ -55,9 +55,9 @@ def main() -> None:
 
     sim_time = 30.0
     vx = 10.0
-    plant = VehicleLat(dt=DT, vx=vx, Y0=2.0)
+    plant = VehicleLat(dt=DT, vx=vx, Y0=0.0)
     # [튜닝] 게인/파라미터 값을 바꿔 응답 변화 비교 — test_*.py 의 값은 변경 X (합격 기준)
-    s = Stanley(k=0.0)
+    s = Stanley(k=1.0)
     pipe = LateralPipeline(
         g2l=Global2Local(NUM_POINT),
         fitter=PolynomialFitting(DEGREE, NUM_POINT),
@@ -134,8 +134,9 @@ def main() -> None:
             {"X": ref_x.tolist(), "Y": (ref_y - 1.75).tolist(), "kind": "edge"},
         ],
         "scalars": [
-            {"name": "lateral_error", "unit": "m", "t": t.tolist(), "value": err_arr.tolist()},
-            {"name": "delta", "unit": "rad", "t": t.tolist(), "value": delta_arr.tolist()},
+            {"name": "y", "unit": "m", "t": t.tolist(), "value": err_arr.tolist()},
+            {"name": "u_cmd", "unit": "deg", "t": t.tolist(),
+             "value": np.rad2deg(delta_arr).tolist()},
         ],
         "dynamic_paths": [
             {"name": "fit", "color": [255, 150, 0, 200], "radius": 0.08,

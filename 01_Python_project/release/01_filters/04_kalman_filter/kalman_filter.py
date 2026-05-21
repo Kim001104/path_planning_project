@@ -17,13 +17,13 @@ class KalmanFilter:
         self.P = p0
 
     def step(self, measurement: float, control_input: float) -> float:
-        # TODO: 한 번의 Predict + Update 수행 후 갱신된 추정값을 반환.
-        # Predict:
-        #   x_pred = A · x + B · u
-        #   P_pred = A^2 · P + Q
-        # Update:
-        #   K = P_pred · C / (C^2 · P_pred + R)
-        #   x_new = x_pred + K · (measurement - C · x_pred)
-        #   P_new = (1 - K · C) · P_pred
-        # self.x, self.P 갱신 후 self.x 반환.
-        raise NotImplementedError
+        x_pred = self.A * self.x + self.B * control_input
+        p_pred = self.A ** 2 * self.P + self.Q
+
+        k = p_pred * self.C / (self.C ** 2 * p_pred + self.R)
+
+        self.x = x_pred + k * (measurement - self.C * x_pred)
+        self.P = (1 - k * self.C) * p_pred
+
+        return self.x
+

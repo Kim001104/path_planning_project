@@ -70,4 +70,23 @@ class LateralPipeline:
         # return PipelineOutput(delta=float(delta), coeff=coeff,
         #                       fit_local_points=fit_local_points,
         #                       lookahead_local=(float(lookahead_x), float(y_lh)))
-        raise NotImplementedError
+        x_global = x_ego + self.sample_xs
+        y_global = ref_y_fn(x_global)
+        points = np.column_stack([x_global, y_global])
+
+        self.g2l.convert(points, yaw_ego, x_ego, y_ego)
+        self.fitter.fit(self.g2l.local_points)
+        coeff = self.fitter.coeff
+
+        self.ev.calculate(coeff, self.x_local)
+        fit_local_points = self.ev.points.copy()
+
+        delta = self.controller.step(coeff, vx)
+        y_lh = _polyval_at(coeff, lookahead_x)
+
+        return PipelineOutput(
+            delta=float(delta),
+            coeff=coeff,
+            fit_local_points=fit_local_points,
+            lookahead_local=(float(lookahead_x), float(y_lh)),
+        )

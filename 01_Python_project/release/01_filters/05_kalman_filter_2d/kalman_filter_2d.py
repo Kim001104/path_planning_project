@@ -32,4 +32,15 @@ class KalmanFilter2D:
         #   x_new = x_pred + K * innovation
         #   P_new = (np.eye(2) - np.outer(K, C)) @ P_pred
         # self.x, self.P 갱신 후 self.x 반환.
-        raise NotImplementedError
+        x_pred = self.A @ self.x + self.B * control_input
+        p_pred = self.A @ self.P @ self.A.T + self.Q
+
+        s = self.C @ p_pred @ self.C + self.R
+        k = (p_pred @ self.C) / s
+
+        innovation = measurement - self.C @ x_pred
+
+        self.x = x_pred + k * innovation
+        self.P = (np.eye(2) - np.outer(k, self.C)) @ p_pred
+
+        return self.x

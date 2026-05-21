@@ -38,7 +38,7 @@ def main() -> None:
     target = VehicleLong(dt=dt, Ca=0.0, x0=10.0, vx0=10.0)
     ego = VehicleLong(dt=dt, Ca=0.5, x0=0.0, vx0=10.0)
     # [튜닝] 게인/파라미터 값을 바꿔 응답 변화 비교 — test_*.py 의 값은 변경 X (합격 기준)
-    pid = TimeGapPID(kp=0.0, kd=0.0, ki=0.0, dt=dt, time_gap=time_gap)
+    pid = TimeGapPID(kp=0.3, kd=1.0, ki=0.0, dt=dt, time_gap=time_gap)
 
     t = np.zeros(steps)
     x_target = np.zeros(steps)

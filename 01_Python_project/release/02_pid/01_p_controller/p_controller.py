@@ -10,7 +10,5 @@ class PController:
         self.kp = kp
 
     def step(self, reference: float, measure: float) -> float:
-        # TODO: 비례 제어 식을 구현하시오.
-        # 인터페이스: reference (목표), measure (현재) 를 받아 제어 입력 u 를 반환
-        # 부호 주의: error = reference - measure 형태로 작성할 것
-        raise NotImplementedError
+        error = reference - measure
+        return self.kp * error
